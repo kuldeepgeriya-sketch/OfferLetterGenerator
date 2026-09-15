@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exceledge HRMS - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #1f1f1f;
+            border: 1px solid #333;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-form .field-group {
+            margin-bottom: 15px;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e9e9e9;
+            font-size: 0.95rem;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #111;
+            color: #e9e9e9;
+            font-size: 1rem;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            background: #ffeb3b;
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-form button:hover {
+            background: #f0d800;
+        }
+        .login-note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .message {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="topbar-content">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='EE Logo.png') }}" alt="Company Logo" class="logo">
+                    <p class="tagline">Leading You to the Edge of Success</p>
+                </div>
+                <div>
+                    <h1>HRMS</h1>
+                </div>
+            </div>
+        </header>
+
+        <div id="message" class="message"></div>
+
+        <div id="mainLandingContent" style="display: flex; gap: 30px; max-width: 900px; margin: 20px auto; padding: 0 20px;">
+            <!-- Left: New Employee Joining Form access -->
+            <div style="flex: 1; background: #1f1f1f; border: 1px solid #333; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);">
+                <div class="panel-header"><h2 style="margin:0 0 10px 0;">New Employee Joining Form</h2></div>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">For new joiners to submit their details for admin approval. Click below to access the form.</p>
+                <button onclick="showJoiningForm()" class="btn btn-primary" style="width: 100%; font-size: 1rem; padding: 12px;">
+                    Access New Employee Joining Form
+                </button>
+            </div>
+
+            <!-- Right: Login credentials -->
+            <div class="login-container" style="flex: 1; margin: 0;">
+                <div class="login-header">
+                    <h2>Login to Exceledge HRMS</h2>
+                    <p style="color:#888; font-size:0.9rem;">Employee Self-Service Portal</p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="field-group">
+                        <label>User ID (Mobile No)</label>
+                        <input type="text" id="user_id" name="user_id" placeholder="Enter your mobile number" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <div class="field-group" id="confirmGroup" style="display:none;">
+                        <label>Confirm Password (First time only)</label>
+                        <input type="password" id="confirm_password" placeholder="Confirm new password">
+                    </div>
+                    <button type="submit" id="loginBtn">Login / Create Password</button>
+                </form>
+
+                <div class="login-note">
+                    First time? Enter your mobile and set a new password.<br>
+                    Use your registered mobile number as User ID.
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden Joining Form section, shown when button clicked -->
+        <div id="joiningFormSection" style="display: none; max-width: 900px; margin: 30px auto; padding: 0 20px;">
+            <div id="joiningFormPanel" class="panel" style="margin-bottom: 0;">
+                <div class="panel-header"><h2>NEW EMPLOYEE JOINING FORM</h2></div>
+                <div class="panel-header" style="margin-top:10px;"><h3>PERSONAL DETAILS</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Full Name</label><input id="joining_full_name" type="text" required></div>
+                    <div class="field-group"><label>Contact No</label><input id="joining_contact_no" type="text" required></div>
+                    <div class="field-group"><label>Email ID</label><input id="joining_email_id" type="email" required></div>
+                    <div class="field-group"><label>Designation</label><input id="joining_designation" type="text" required></div>
+                    <div class="field-group"><label>Joining Date</label><input id="joining_joining_date" type="date" required></div>
+                    <div class="field-group"><label>Date of Birth</label><input id="joining_date_of_birth" type="date" required></div>
+                    <div class="field-group"><label>Gender</label><select id="joining_gender" required><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                    <div class="field-group"><label>Marital Status</label><select id="joining_marital_status" required><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div>
+                    <div class="field-group"><label>PAN No</label><input id="joining_pan_no" type="text" required></div>
+                    <div class="field-group"><label>Aadhar No</label><input id="joining_aadhar_no" type="text" required></div>
+                    <div class="field-group field-full"><label>Permanent Address</label><textarea id="joining_permanent_address" rows="3" required></textarea></div>
+                </div>
+
+                <div class="panel-header" style="margin-top:20px;"><h3>BANK DETAILS</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Bank Name</label><input id="joining_bank_name" type="text" required></div>
+                    <div class="field-group"><label>Bank Account Number</label><input id="joining_bank_account_number" type="text" required></div>
+                    <div class="field-group"><label>IFSC Code</label><input id="joining_ifsc_code" type="text" required></div>
+                    <div class="field-group"><label>Branch Name</label><input id="joining_branch_name" type="text" required></div>
+                </div>
+
+                <div class="panel-header" style="margin-top:20px;"><h3>EDUCATION DETAILS</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Highest Qualification</label><input id="joining_highest_qualification" type="text" required></div>
+                    <div class="field-group"><label>University/Board</label><input id="joining_university_board" type="text" required></div>
+                    <div class="field-group"><label>Year of Passing</label><input id="joining_year_of_passing" type="text" required></div>
+                    <div class="field-group"><label>Percentage/Grade</label><input id="joining_percentage_grade" type="text" required></div>
+                </div>
+
+                <div class="panel-header" style="margin-top:20px;"><h3>EMERGENCY CONTACT DETAILS</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Person Name</label><input id="joining_emergency_person_name" type="text" required></div>
+                    <div class="field-group"><label>Person Mobile No</label><input id="joining_emergency_person_mobile" type="text" required></div>
+                    <div class="field-group"><label>Relation with Person</label><input id="joining_emergency_relation" type="text" required></div>
+                    <div class="field-group"><label>Person Address</label>
+                        <select id="joining_emergency_address_type" required style="margin-bottom:5px;">
+                            <option value="">Select</option>
+                            <option value="same">Same As Permanent Address</option>
+                            <option value="other">Other - Specify</option>
+                        </select>
+                        <textarea id="joining_emergency_person_address" rows="3" required placeholder="If Other, specify here"></textarea>
+                    </div>
+                </div>
+
+                <div class="panel-header" style="margin-top:20px;"><h3>PREVIOUS EMPLOYMENT DETAILS (If Applicable)</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Previous Company Name</label><input id="joining_prev_company_name" type="text"></div>
+                    <div class="field-group"><label>Designation</label><input id="joining_prev_designation" type="text"></div>
+                    <div class="field-group"><label>Duration</label><input id="joining_prev_duration" type="text"></div>
+                    <div class="field-group"><label>Last Drawn Salary</label><input id="joining_prev_last_salary" type="text"></div>
+                </div>
+
+                <div class="panel-header" style="margin-top:20px;"><h3>DOCUMENT UPLOAD</h3></div>
+                <div class="form-grid">
+                    <div class="field-group"><label>Photo</label><input id="joining_photo" type="file" accept="image/*" required></div>
+                    <div class="field-group"><label>PAN Card</label><input id="joining_pan_card" type="file" accept="image/*,.pdf" required></div>
+                    <div class="field-group"><label>Aadhar Card</label><input id="joining_aadhar_card" type="file" accept="image/*,.pdf" required></div>
+                    <div class="field-group"><label>Cheque / Passbook</label><input id="joining_cheque_passbook" type="file" accept="image/*,.pdf" required></div>
+                    <div class="field-group"><label>Highest Education Certificate</label><input id="joining_highest_education_cert" type="file" accept="image/*,.pdf" required></div>
+                    <div class="field-group"><label>Last 3 Month Salary Slip (If Applicable)</label><input id="joining_last_3_month_salary_slip" type="file" accept="image/*,.pdf"></div>
+                    <div class="field-group"><label>Previous Employment Documents (If Applicable)</label><input id="joining_prev_employment_docs" type="file" accept="image/*,.pdf"></div>
+                </div>
+
+                <div class="button-row" style="margin-top: 20px;">
+                    <button id="saveJoiningForm" class="btn btn-primary">Submit Joining Form</button>
+                    <button id="clearJoiningForm" class="btn btn-tertiary">Clear</button>
+                    <button onclick="hideJoiningForm()" class="btn btn-secondary" style="margin-left:10px;">Back to Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messageEl = document.getElementById('message');
+
+        function showMessage(text, type = 'success') {
+            messageEl.textContent = text;
+            messageEl.className = `message show ${type}`;
+            setTimeout(() => {
+                messageEl.className = 'message';
+                messageEl.textContent = '';
+            }, 4000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('user_id').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+
+            if (!userId || !password) {
+                showMessage('Please enter User ID and Password', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('password', password);
+            if (confirm) formData.append('confirm_password', confirm);
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = '/';
+                } else {
+                    showMessage(result.error || 'Login failed', 'error');
+                    if (result.first_time) {
+                        document.getElementById('confirmGroup').style.display = 'block';
+                    }
+                }
+            } catch (err) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+        });
+
+        // Joining Form submit logic (same as main app)
+        async function saveJoiningForm() {
+            try {
+                // Manual validation for mandatory fields
+                const requiredText = [
+                    'joining_full_name', 'joining_contact_no', 'joining_email_id', 'joining_designation',
+                    'joining_joining_date', 'joining_permanent_address', 'joining_date_of_birth',
+                    'joining_gender', 'joining_marital_status', 'joining_pan_no', 'joining_aadhar_no',
+                    'joining_bank_name', 'joining_bank_account_number', 'joining_ifsc_code', 'joining_branch_name',
+                    'joining_highest_qualification', 'joining_university_board', 'joining_year_of_passing', 'joining_percentage_grade',
+                    'joining_emergency_person_name', 'joining_emergency_person_mobile', 'joining_emergency_relation'
+                ];
+                for (let id of requiredText) {
+                    const el = document.getElementById(id);
+                    if (!el || !(el.value || '').trim()) {
+                        showMessage('Please fill all mandatory details before submitting.', 'error');
+                        return;
+                    }
+                }
+
+                const addrTypeEl = document.getElementById('joining_emergency_address_type');
+                if (!addrTypeEl || !addrTypeEl.value) {
+                    showMessage('Please select Person Address option.', 'error');
+                    return;
+                }
+                const addrEl = document.getElementById('joining_emergency_person_address');
+                if (addrTypeEl.value === 'other' && (!addrEl || !(addrEl.value || '').trim())) {
+                    showMessage('Please specify the Person Address when selecting Other.', 'error');
+                    return;
+                }
+
+                const requiredFiles = [
+                    'joining_photo', 'joining_pan_card', 'joining_aadhar_card', 
+                    'joining_cheque_passbook', 'joining_highest_education_cert'
+                ];
+                for (let id of requiredFiles) {
+                    const el = document.getElementById(id);
+                    if (!el || !el.files || el.files.length === 0) {
+                        showMessage('Please upload all mandatory documents.', 'error');
+                        return;
+                    }
+                }
+
+                const formData = new FormData();
+
+                // Handle emergency address copy
+                const permAddrEl = document.getElementById('joining_permanent_address');
+                if (addrTypeEl && addrEl && permAddrEl) {
+                    if (addrTypeEl.value === 'same') {
+                        addrEl.value = permAddrEl.value || '';
+                    }
+                }
+
+                const textFieldIds = [
+                    'joining_full_name', 'joining_contact_no', 'joining_email_id', 'joining_designation',
+                    'joining_joining_date', 'joining_permanent_address', 'joining_date_of_birth',
+                    'joining_gender', 'joining_marital_status', 'joining_pan_no', 'joining_aadhar_no',
+                    'joining_bank_name', 'joining_bank_account_number', 'joining_ifsc_code', 'joining_branch_name',
+                    'joining_highest_qualification', 'joining_university_board', 'joining_year_of_passing', 'joining_percentage_grade',
+                    'joining_emergency_person_name', 'joining_emergency_person_mobile', 'joining_emergency_relation', 'joining_emergency_person_address',
+                    'joining_emergency_address_type',
+                    'joining_prev_company_name', 'joining_prev_designation', 'joining_prev_duration', 'joining_prev_last_salary'
+                ];
+                textFieldIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        formData.append(id, el.value ? (el.value.trim ? el.value.trim() : el.value) : '');
+                    }
+                });
+
+                const fileFieldIds = [
+                    'joining_photo', 'joining_pan_card', 'joining_aadhar_card', 'joining_cheque_passbook',
+                    'joining_highest_education_cert', 'joining_last_3_month_salary_slip', 'joining_prev_employment_docs'
+                ];
+                fileFieldIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.files && el.files.length > 0) {
+                        formData.append(id, el.files[0]);
+                    }
+                });
+
+                const response = await fetch('/api/employee-joining-forms', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    // Replace the visible form panel content with welcome greeting + code
+                    const formPanel = document.getElementById('joiningFormPanel');
+                    if (formPanel) {
+                        formPanel.innerHTML = `
+                            <div class="panel-header"><h2>🎉 Welcome to Exceledge Family!</h2></div>
+                            <div style="padding: 30px; text-align: center; font-size: 1.2rem;">
+                                <p>Your details have been received and are now pending admin approval.</p>
+                                <p style="font-size: 1.5rem; font-weight: bold; margin: 20px 0; color: #ffeb3b;">
+                                    Your Employee Code is - ${result.employee_code}
+                                </p>
+                                <p>You will be contacted soon with further instructions.</p>
+                                <button onclick="location.reload()" class="btn btn-primary" style="margin-top:15px;">Submit Another Form</button>
+                            </div>
+                        `;
+                    } else {
+                        // Fallback: at least show the toast
+                        showMessage(`Welcome! Your Employee Code is ${result.employee_code}`, 'success');
+                    }
+                    showMessage(`Welcome! Your Employee Code is ${result.employee_code}`, 'success');
+                } else {
+                    showMessage(result.error || 'Failed to submit form.', 'error');
+                }
+            } catch (err) {
+                showMessage(err.message, 'error');
+            }
+        }
+
+        document.getElementById('saveJoiningForm').addEventListener('click', saveJoiningForm);
+        document.getElementById('clearJoiningForm').addEventListener('click', function() {
+            const fields = ['joining_full_name', 'joining_contact_no', 'joining_email_id', 'joining_designation',
+                'joining_joining_date', 'joining_permanent_address', 'joining_date_of_birth',
+                'joining_gender', 'joining_marital_status', 'joining_pan_no', 'joining_aadhar_no',
+                'joining_bank_name', 'joining_bank_account_number', 'joining_ifsc_code', 'joining_branch_name',
+                'joining_highest_qualification', 'joining_university_board', 'joining_year_of_passing', 'joining_percentage_grade',
+                'joining_emergency_person_name', 'joining_emergency_person_mobile', 'joining_emergency_relation', 'joining_emergency_person_address',
+                'joining_emergency_address_type',
+                'joining_prev_company_name', 'joining_prev_designation', 'joining_prev_duration', 'joining_prev_last_salary'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.tagName === 'SELECT') {
+                        el.value = el.options[0] ? el.options[0].value : '';
+                    } else if (el.type === 'file') {
+                        el.value = '';
+                    } else {
+                        el.value = '';
+                    }
+                }
+            });
+        });
+
+        function showJoiningForm() {
+            const mainContent = document.getElementById('mainLandingContent');
+            const joiningSection = document.getElementById('joiningFormSection');
+            if (mainContent) mainContent.style.display = 'none';
+            if (joiningSection) joiningSection.style.display = 'block';
+            // scroll to it
+            if (joiningSection) joiningSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideJoiningForm() {
+            const mainContent = document.getElementById('mainLandingContent');
+            const joiningSection = document.getElementById('joiningFormSection');
+            if (joiningSection) joiningSection.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

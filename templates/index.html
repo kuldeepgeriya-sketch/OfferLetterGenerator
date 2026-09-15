@@ -1,0 +1,728 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS & Offer Letter Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="topbar-content">
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='EE Logo.png') }}" alt="Company Logo" class="logo">
+                    <p class="tagline">Leading You to the Edge of Success</p>
+                </div>
+                <div>
+                    <h1>HRMS</h1>
+                </div>
+                <div id="user-info" style="display: flex; align-items: center; gap: 10px; margin-left: auto; background: #2a2a2a; padding: 4px 10px; border-radius: 6px;">
+                    <span id="logged-user" style="color: #ffeb3b; font-weight: 600; margin-right: 5px;">User</span>
+                    <button onclick="logoutUser()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; background: #444; color: #fff; border: 1px solid #666;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <div class="tab-dropdown">
+                <button class="tab active" data-tab="employees">Employees</button>
+                <ul class="dropdown-menu">
+                    <li data-sub="employee-detail">Add Employee</li>
+                    <li data-sub="attendance">Attendance</li>
+                    <li data-sub="shift">Shift</li>
+                    <li data-sub="leave">Leave</li>
+                </ul>
+            </div>
+            <div class="tab-dropdown">
+                <button class="tab" data-tab="payroll">Payroll</button>
+                <ul class="dropdown-menu">
+                    <li data-sub="payroll-processing">Payroll Processing</li>
+                    <li data-sub="payroll-records">Payroll Records</li>
+                    <li data-sub="statutory">Statutory</li>
+                    <li data-sub="bank-generate">Generate Payment File</li>
+                    <li data-sub="bank-employees">Bank Employees</li>
+                    <li data-sub="bank-history">Bank History</li>
+                </ul>
+            </div>
+            <div class="tab-dropdown">
+                <button class="tab" data-tab="settings">Settings</button>
+                <ul class="dropdown-menu">
+                    <li data-sub="departments">Departments</li>
+                    <li data-sub="designations">Designations</li>
+                    <li data-sub="offices">Offices</li>
+                </ul>
+            </div>
+            <button class="tab" data-tab="approvals">Approvals</button>
+            <button class="tab" data-tab="letter-generator">Letter Generator</button>
+        </nav>
+
+        <div id="message" class="message"></div>
+
+        <div class="tab-pages">
+            <section id="employees" class="tab-page active">
+                <div class="sub-page active" id="employee-records">
+                    <div class="panel panel-list">
+                        <div class="panel-header"><h2>Employee Records</h2></div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: flex-end;">
+                            <div class="field-group" style="margin-bottom:0;">
+                                <label>Search</label>
+                                <input id="empSearch" type="text" placeholder="Search by name or code" style="min-width: 180px;">
+                            </div>
+                            <div class="field-group" style="margin-bottom:0;">
+                                <label>Department</label>
+                                <select id="filterDept" style="min-width: 130px;"><option value="">All Departments</option></select>
+                            </div>
+                            <div class="field-group" style="margin-bottom:0;">
+                                <label>Designation</label>
+                                <select id="filterDesig" style="min-width: 130px;"><option value="">All Designations</option></select>
+                            </div>
+                            <div class="field-group" style="margin-bottom:0;">
+                                <label>Office</label>
+                                <select id="filterOffice" style="min-width: 130px;"><option value="">All Offices</option></select>
+                            </div>
+                            <div class="field-group" style="margin-bottom:0;">
+                                <label>Manager</label>
+                                <select id="filterManager" style="min-width: 130px;"><option value="">All Managers</option></select>
+                            </div>
+                            <button id="clearEmpFilters" class="btn btn-secondary" style="height: 42px; padding: 0 12px;">Clear Filters</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="employeesTable">
+                                <thead><tr><th data-col="code">Code</th><th data-col="name">Name</th><th data-col="email">Email</th><th data-col="phone">Phone</th><th data-col="department">Department</th><th data-col="designation">Designation</th><th data-col="office">Office</th><th data-col="manager">Manager</th><th data-col="gender">Gender</th><th data-col="status">Status</th><th data-col="joining_date">Joining Date</th><th data-col="ctc">CTC</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="employee-detail">
+                    <div class="panel">
+                        <div class="panel-header"><h2 id="employeeFormTitle">Add Employee</h2></div>
+                        <div class="form-grid">
+                            <div class="field-group"><label>Employee Code</label><input id="emp_code" type="text"></div>
+                            <div class="field-group"><label>First Name</label><input id="emp_first_name" type="text"></div>
+                            <div class="field-group"><label>Last Name</label><input id="emp_last_name" type="text"></div>
+                            <div class="field-group"><label>Email</label><input id="emp_email" type="email"></div>
+                            <div class="field-group"><label>Phone</label><input id="emp_phone" type="text"></div>
+                            <div class="field-group"><label>Date of Birth</label><input id="emp_dob" type="date"></div>
+                            <div class="field-group"><label>Gender</label><select id="emp_gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                            <div class="field-group"><label>Department</label><select id="emp_department"></select></div>
+                            <div class="field-group"><label>Designation</label><select id="emp_designation"></select></div>
+                            <div class="field-group"><label>Office</label><select id="emp_office"></select></div>
+                            <div class="field-group"><label>Manager</label><select id="emp_manager"><option value="">-- None --</option></select></div>
+                            <div class="field-group"><label>Joining Date</label><input id="emp_joining_date" type="date"></div>
+                            <div class="field-group"><label>CTC</label><input id="emp_ctc" type="number" min="0"></div>
+                            <div class="field-group"><label>Status</label><select id="emp_status"><option>Active</option><option>Inactive</option></select></div>
+                            <div class="field-group field-full"><label>Address</label><textarea id="emp_address" rows="3"></textarea></div>
+                        </div>
+                        <div class="button-row">
+                            <button id="saveEmployee" class="btn btn-primary">Save Employee</button>
+                            <button id="clearEmployee" class="btn btn-tertiary">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="margin-top: 20px;">
+                        <div class="panel-header"><h2>Bulk Import Employees</h2></div>
+                        <div style="padding: 20px; text-align: center;">
+                            <p style="margin-bottom: 15px;">Download the template, fill it with employee data, and upload it below.</p>
+                            <a href="/download-template" class="btn btn-secondary" style="margin-bottom: 20px; display: inline-block;">📥 Download Excel Template</a>
+                            <div style="margin-top: 30px; border: 2px dashed #ccc; padding: 30px; border-radius: 8px;">
+                                <input type="file" id="bulkImportFile" accept=".xlsx,.xls" style="margin-bottom: 15px;">
+                                <button id="bulkImportBtn" class="btn btn-primary">📤 Upload & Import</button>
+                                <div id="importStatus" style="margin-top: 15px; font-size: 14px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="attendance">
+                    <div class="panel" id="attendanceFilterPanel">
+                        <div class="panel-header"><h2>Attendance Summary</h2></div>
+                        <div class="filter-bar">
+                            <div class="field-group"><label>Employee</label><select id="attendance_filter_employee"><option value="">All Employees</option></select></div>
+                            <div class="field-group"><label>Start Date</label><input id="attendance_filter_start" type="date"></div>
+                            <div class="field-group"><label>End Date</label><input id="attendance_filter_end" type="date"></div>
+                            <div class="filter-actions"><button id="attendanceFilterBtn" class="btn btn-primary">Apply Filter</button><button id="attendanceClearFilterBtn" class="btn btn-secondary">Clear Filter</button></div>
+                        </div>
+                        <div style="padding: 0 16px 12px 16px;">
+                            <button id="attendanceSingleMarkBtn" class="btn btn-primary">Mark & Import Attendance</button>
+                            <button id="allEmployeeAttendanceMarkBtn" class="btn btn-primary">All Employee Attendance Mark</button>
+                        </div>
+                    </div>
+
+                    <div id="attendanceSummaryView">
+                        <div class="panel">
+                            <div class="table-container attendance-summary-table">
+                                <table id="attendanceSummaryTable">
+                                    <thead><tr><th>Employee</th><th>P</th><th>A</th><th>WO</th><th>Hol</th><th>H</th><th>Total</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="attendanceActionsView" class="hidden">
+                        <div class="panel">
+                            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; gap: 20px;">
+                                <h2>Attendance Actions</h2>
+                                <button id="attendanceActionsBack" class="btn btn-tertiary">← Summary</button>
+                            </div>
+                        </div>
+                        <div class="panel-grid" style="margin-top: 20px;">
+                            <div class="panel">
+                                <div class="panel-header"><h2>Single Attendance Mark</h2></div>
+                                <div class="form-grid two-column">
+                                    <div class="field-group"><label>Employee</label><select id="attendance_employee"></select></div>
+                                    <div class="field-group"><label>Date</label><input id="attendance_date" type="date"></div>
+                                    <div class="field-group"><label>Status</label><select id="attendance_status"><option value="P">Present</option><option value="A">Absent</option><option value="WO">Weekly Off</option><option value="H">Holiday</option><option value="AH">Half Day</option></select></div>
+                                    <div class="field-group"><label>Shift</label><select id="attendance_shift"></select></div>
+                                    <div class="field-group"><label>Check In</label><input id="attendance_check_in" type="time"></div>
+                                    <div class="field-group"><label>Check Out</label><input id="attendance_check_out" type="time"></div>
+                                </div>
+                                <div class="button-row">
+                                    <button id="saveAttendance" class="btn btn-primary">Save Attendance</button>
+                                    <button id="clearAttendance" class="btn btn-tertiary">Clear</button>
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <div class="panel-header"><h2>Bulk Update Attendance using Excel</h2></div>
+                                <div style="padding: 20px; text-align: center;">
+                                    <p style="margin-bottom: 15px;">Download the attendance template and use it to bulk update / import attendance for many employees at once (supports upsert by emp+date and applies policies).</p>
+                                    <a href="/download-attendance-template" class="btn btn-secondary" style="margin-bottom: 20px; display: inline-block;">📥 Download Attendance Template</a>
+                                    <div style="margin-top: 30px; border: 2px dashed #ccc; padding: 30px; border-radius: 8px;">
+                                        <input type="file" id="attendanceImportFile" accept=".xlsx,.xls" style="margin-bottom: 15px;">
+                                        <button id="attendanceImportBtn" class="btn btn-primary">📤 Upload & Import Attendance</button>
+                                        <div id="attendanceImportStatus" style="margin-top: 15px; font-size: 14px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="allAttendanceMarkView" class="hidden">
+                        <div class="panel">
+                            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; gap: 20px;">
+                                <h2>All Employee Attendance Mark</h2>
+                                <button id="allMarkBackBtn" class="btn btn-tertiary">← Summary</button>
+                            </div>
+                        </div>
+                        <div class="panel" style="margin-top: 16px;">
+                            <div class="field-group" style="max-width: 220px;">
+                                <label>Select Date to Mark Attendance</label>
+                                <input id="all_mark_date" type="date" style="width:100%;">
+                            </div>
+                            <div style="margin: 12px 0 8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <button id="loadAllEmployeesBtn" class="btn btn-primary">Load Employees</button>
+                                <span style="color:#888; font-size:0.9rem;">Quick fill:</span>
+                                <button type="button" class="btn btn-secondary" data-quick="P" style="padding:6px 10px; font-size:0.85rem;">All P</button>
+                                <button type="button" class="btn btn-secondary" data-quick="A" style="padding:6px 10px; font-size:0.85rem;">All A</button>
+                                <button type="button" class="btn btn-secondary" data-quick="HF" style="padding:6px 10px; font-size:0.85rem;">All HF</button>
+                                <button type="button" class="btn btn-secondary" data-quick="H" style="padding:6px 10px; font-size:0.85rem;">All H</button>
+                            </div>
+                            <div id="allMarkEmployeesContainer" style="max-height: 420px; overflow: auto; border: 1px solid #444; border-radius: 6px; background: #1f1f1f;"></div>
+                            <div class="button-row" style="margin-top: 16px;">
+                                <button id="submitAllAttendanceBtn" class="btn btn-primary">Submit All Attendance</button>
+                                <button id="clearAllMarkBtn" class="btn btn-tertiary">Clear List</button>
+                            </div>
+                            <p style="margin-top:8px; font-size:0.8rem; color:#888;">Select status (P=Present, A=Absent, HF=Half Day, H=Holiday) and optional remarks for each employee, then submit to save for the chosen date.</p>
+                        </div>
+                    </div>
+
+                    <div id="attendanceDetailView" class="hidden">
+                        <div class="panel">
+                            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; gap: 20px;">
+                                <button id="attendanceDetailBack" class="btn btn-tertiary">← Back</button>
+                                <div>
+                                    <h2 id="attendanceDetailTitle">Employee Attendance Details</h2>
+                                    <p id="attendanceDetailRange" style="color: #bbb; margin-top: 6px; font-size: 0.95rem;"></p>
+                                </div>
+                                <div></div>
+                            </div>
+                            <div class="attendance-detail-stats" style="display:grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px;">
+                                <div class="status-card"><strong id="detailPresentCount">0</strong><span>Present</span></div>
+                                <div class="status-card"><strong id="detailAbsentCount">0</strong><span>Absent</span></div>
+                                <div class="status-card"><strong id="detailWoCount">0</strong><span>Weekly Off</span></div>
+                                <div class="status-card"><strong id="detailHolidayCount">0</strong><span>Holiday</span></div>
+                                <div class="status-card"><strong id="detailHalfDayCount">0</strong><span>Half Day</span></div>
+                            </div>
+                            <div class="table-container">
+                                <table id="attendanceDetailTable">
+                                    <thead><tr><th>Date</th><th>Status</th><th>Shift</th><th>First In</th><th>Last Out</th><th>Working Hours</th><th></th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="attendanceStatusMenu" class="attendance-status-menu hidden"></div>
+
+                    <div id="attendanceEditPopup" class="attendance-edit-popup hidden">
+                        <div class="attendance-edit-inner">
+                            <div class="attendance-edit-header">
+                                <h3>Edit Attendance</h3>
+                                <button id="closeAttendanceEdit" class="btn btn-tertiary">Close</button>
+                            </div>
+                            <div class="form-grid two-column" style="margin-top: 20px;">
+                                <div class="field-group"><label>Status</label><select id="edit_attendance_status"><option value="P">Present</option><option value="A">Absent</option><option value="WO">Weekly Off</option><option value="H">Holiday</option><option value="AH">Half Day</option></select></div>
+                                <div class="field-group"><label>Shift</label><select id="edit_attendance_shift"></select></div>
+                                <div class="field-group"><label>Check In</label><input id="edit_attendance_check_in" type="time"></div>
+                                <div class="field-group"><label>Check Out</label><input id="edit_attendance_check_out" type="time"></div>
+                            </div>
+                            <div class="button-row" style="margin-top: 18px; justify-content: flex-end; gap: 10px;">
+                                <button id="saveAttendanceEdit" class="btn btn-primary">Update</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="sub-page" id="shift">
+                    <div class="panel-grid">
+                        <div class="panel">
+                            <div class="panel-header"><h2>Shift Management</h2></div>
+                            <div class="form-grid two-column">
+                                <div class="field-group"><label>Shift Name</label><input id="shift_name" type="text"></div>
+                                <div class="field-group"><label>Start Time</label><input id="shift_start" type="time"></div>
+                                <div class="field-group"><label>End Time</label><input id="shift_end" type="time"></div>
+                                <div class="field-group field-full"><label>Description</label><textarea id="shift_description" rows="3"></textarea></div>
+                            </div>
+                            <div class="button-row">
+                                <button id="saveShift" class="btn btn-primary">Save Shift</button>
+                                <button id="updateShift" class="btn btn-secondary">Update Shift</button>
+                                <button id="clearShift" class="btn btn-tertiary">Clear</button>
+                            </div>
+                        </div>
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Shift List</h2></div>
+                            <div class="table-container"><table id="shiftTable"><thead><tr><th>Name</th><th>Time</th><th>Description</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="leave">
+                    <div class="panel-grid">
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Leave Dashboard</h2></div>
+                            <div class="button-row" style="margin-bottom: 12px;">
+                                <button id="creditEarnedBtn" class="btn btn-secondary">Credit Earned Leave (Current Month)</button>
+                                <button id="creditSpecialBtn" class="btn btn-secondary">Credit Special Leave (Current Year)</button>
+                                <button id="reconcileAbsencesBtn" class="btn btn-primary">Reconcile Absences from Attendance (June 2026+)</button>
+                            </div>
+                            <div class="table-container">
+                                <table id="leaveDashboardTable">
+                                    <thead><tr><th>Employee</th><th>Earned Leave</th><th>Special Leave</th><th>Loss of Pay</th><th>Total Days</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <p style="font-size:12px; color:#666;">Balances are as per your bulk upload (incl. June 1.25 earned). Use "Reconcile Absences" to auto-adjust Earned/LOP from June+ 'A' marks per your rules (deduct earned first, excess LOP). Credit buttons for future months.</p>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-header"><h2>Leave Management (Record Leave Taken)</h2></div>
+                            <div class="form-grid">
+                                <input type="hidden" id="leave_id">
+                                <div class="field-group"><label>Employee</label><select id="leave_employee"></select></div>
+                                <div class="field-group"><label>Leave Type</label><select id="leave_type"></select></div>
+                                <div class="field-group"><label>Start Date</label><input id="leave_start" type="date"></div>
+                                <div class="field-group"><label>End Date</label><input id="leave_end" type="date"></div>
+                                <div class="field-group field-full"><label>Reason / Notes (e.g. birthday of self/spouse/parent for Special)</label><textarea id="leave_reason" rows="3"></textarea></div>
+                            </div>
+                            <div class="button-row">
+                                <button id="saveLeave" class="btn btn-primary">Record Leave (Deduct Balance)</button>
+                                <button id="clearLeave" class="btn btn-tertiary">Clear</button>
+                            </div>
+                            <p style="font-size:12px; color:#666; margin-top:8px;">This is admin backend only. Recording will immediately adjust the leave balance and mark those dates in attendance.</p>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header"><h2>Bulk Leave Balances Update using Excel</h2></div>
+                            <div style="padding: 20px; text-align: center;">
+                                <p style="margin-bottom: 15px;">Download the leave balances template and upload to set/update earned, special and loss of pay for many employees at once (for current or specified year). No automatic crediting.</p>
+                                <a href="/download-leave-balances-template" class="btn btn-secondary" style="margin-bottom: 20px; display: inline-block;">📥 Download Leave Balances Template</a>
+                                <div style="margin-top: 30px; border: 2px dashed #ccc; padding: 30px; border-radius: 8px;">
+                                    <input type="file" id="leaveImportFile" accept=".xlsx,.xls" style="margin-bottom: 15px;">
+                                    <button id="leaveImportBtn" class="btn btn-primary">📤 Upload & Update Leave Balances</button>
+                                    <div id="leaveImportStatus" style="margin-top: 15px; font-size: 14px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Leave Records (History)</h2></div>
+                            <div class="table-container"><table id="leaveRequestTable"><thead><tr><th>Employee</th><th>Type</th><th>Period</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="joining-form" class="tab-page">
+                <div class="panel">
+                    <div class="panel-header"><h2>NEW EMPLOYEE JOINING FORM</h2></div>
+                    <div class="panel-header" style="margin-top:10px;"><h3>PERSONAL DETAILS</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Full Name</label><input id="joining_full_name" type="text" required></div>
+                        <div class="field-group"><label>Contact No</label><input id="joining_contact_no" type="text" required></div>
+                        <div class="field-group"><label>Email ID</label><input id="joining_email_id" type="email" required></div>
+                        <div class="field-group"><label>Designation</label><input id="joining_designation" type="text" required></div>
+                        <div class="field-group"><label>Joining Date</label><input id="joining_joining_date" type="date" required></div>
+                        <div class="field-group"><label>Date of Birth</label><input id="joining_date_of_birth" type="date" required></div>
+                        <div class="field-group"><label>Gender</label><select id="joining_gender" required><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                        <div class="field-group"><label>Marital Status</label><select id="joining_marital_status" required><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div>
+                        <div class="field-group"><label>PAN No</label><input id="joining_pan_no" type="text" required></div>
+                        <div class="field-group"><label>Aadhar No</label><input id="joining_aadhar_no" type="text" required></div>
+                        <div class="field-group field-full"><label>Permanent Address</label><textarea id="joining_permanent_address" rows="3" required></textarea></div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top:20px;"><h3>BANK DETAILS</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Bank Name</label><input id="joining_bank_name" type="text" required></div>
+                        <div class="field-group"><label>Bank Account Number</label><input id="joining_bank_account_number" type="text" required></div>
+                        <div class="field-group"><label>IFSC Code</label><input id="joining_ifsc_code" type="text" required></div>
+                        <div class="field-group"><label>Branch Name</label><input id="joining_branch_name" type="text" required></div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top:20px;"><h3>EDUCATION DETAILS</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Highest Qualification</label><input id="joining_highest_qualification" type="text" required></div>
+                        <div class="field-group"><label>University/Board</label><input id="joining_university_board" type="text" required></div>
+                        <div class="field-group"><label>Year of Passing</label><input id="joining_year_of_passing" type="text" required></div>
+                        <div class="field-group"><label>Percentage/Grade</label><input id="joining_percentage_grade" type="text" required></div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top:20px;"><h3>EMERGENCY CONTACT DETAILS</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Person Name</label><input id="joining_emergency_person_name" type="text" required></div>
+                        <div class="field-group"><label>Person Mobile No</label><input id="joining_emergency_person_mobile" type="text" required></div>
+                        <div class="field-group"><label>Relation with Person</label><input id="joining_emergency_relation" type="text" required></div>
+                        <div class="field-group"><label>Person Address</label>
+                            <select id="joining_emergency_address_type" required style="margin-bottom: 5px;">
+                                <option value="">Select</option>
+                                <option value="same">Same As Permanent Address</option>
+                                <option value="other">Other - Specify</option>
+                            </select>
+                            <textarea id="joining_emergency_person_address" rows="3" required placeholder="If Other, specify here"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top:20px;"><h3>PREVIOUS EMPLOYMENT DETAILS (If Applicable)</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Previous Company Name</label><input id="joining_prev_company_name" type="text"></div>
+                        <div class="field-group"><label>Designation</label><input id="joining_prev_designation" type="text"></div>
+                        <div class="field-group"><label>Duration</label><input id="joining_prev_duration" type="text"></div>
+                        <div class="field-group"><label>Last Drawn Salary</label><input id="joining_prev_last_salary" type="text"></div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top:20px;"><h3>DOCUMENT UPLOAD</h3></div>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Photo</label><input id="joining_photo" type="file" accept="image/*" required></div>
+                        <div class="field-group"><label>PAN Card</label><input id="joining_pan_card" type="file" accept="image/*,.pdf" required></div>
+                        <div class="field-group"><label>Aadhar Card</label><input id="joining_aadhar_card" type="file" accept="image/*,.pdf" required></div>
+                        <div class="field-group"><label>Cheque / Passbook</label><input id="joining_cheque_passbook" type="file" accept="image/*,.pdf" required></div>
+                        <div class="field-group"><label>Highest Education Certificate</label><input id="joining_highest_education_cert" type="file" accept="image/*,.pdf" required></div>
+                        <div class="field-group"><label>Last 3 Month Salary Slip (If Applicable)</label><input id="joining_last_3_month_salary_slip" type="file" accept="image/*,.pdf"></div>
+                        <div class="field-group"><label>Previous Employment Documents (If Applicable)</label><input id="joining_prev_employment_docs" type="file" accept="image/*,.pdf"></div>
+                    </div>
+
+                    <div class="button-row" style="margin-top: 20px;">
+                        <button id="saveJoiningForm" class="btn btn-primary">Submit Joining Form</button>
+                        <button id="clearJoiningForm" class="btn btn-tertiary">Clear</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="approvals" class="tab-page">
+                <div class="panel">
+                    <div class="panel-header"><h2>Pending New Employee Approvals</h2></div>
+                    <div class="table-container">
+                        <table id="pendingJoiningsTable">
+                            <thead>
+                                <tr>
+                                    <th>Submitted</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Employee Code</th>
+                                    <th>Designation</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p style="margin-top: 15px; color: #888; font-size: 0.9rem;">
+                        Review details, then Approve to add to main Employees list or Reject.
+                    </p>
+                </div>
+            </section>
+
+            <section id="payroll" class="tab-page">
+                <div class="sub-page active" id="payroll-processing">
+                    <div class="panel">
+                        <div class="panel-header"><h2>1. Select Employee &amp; Enter Present Days</h2></div>
+                        <p style="color:#999; font-size:0.9rem; margin-top:-10px; margin-bottom:14px;">Employee list, code, office and monthly CTC are pulled automatically from Employee Records.</p>
+                        <div class="form-grid" style="grid-template-columns: repeat(6, minmax(0,1fr));">
+                            <div class="field-group"><label>Employee</label><select id="pm_employee"></select></div>
+                            <div class="field-group"><label>Code</label><input id="pm_code" type="text" readonly></div>
+                            <div class="field-group"><label>Office</label><input id="pm_office" type="text" readonly></div>
+                            <div class="field-group"><label>Monthly CTC</label><input id="pm_ctc" type="text" readonly></div>
+                            <div class="field-group"><label>Month Days</label><input id="pm_month_days" type="number" min="1" value="30"></div>
+                            <div class="field-group"><label>Present Days</label><input id="pm_present_days" type="number" min="0"></div>
+                        </div>
+                        <div class="button-row">
+                            <button id="pmAddToQueue" class="btn btn-primary">+ Add to List</button>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>2. Employees Queued for This Payroll Run</h2></div>
+                        <div class="table-container"><table id="pmPendingTable"><thead><tr><th>Name</th><th>Code</th><th>Office</th><th>CTC</th><th>Month Days</th><th>Present Days</th><th></th></tr></thead><tbody></tbody></table></div>
+                        <div class="button-row"><button id="pmClearQueue" class="btn btn-danger">Clear All</button></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="button-row" style="margin-top:0;">
+                            <button id="pmRunPayroll" class="btn btn-primary">▶ Run Payroll</button>
+                            <button id="pmDownloadRun" class="btn btn-secondary" disabled>⬇ Download Excel</button>
+                            <span id="pmRunStatus" style="align-self:center; color:#cbd5e1;">Add employees above, then click Run.</span>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>3. Save Payroll Data</h2></div>
+                        <div class="form-grid two-column">
+                            <div class="field-group"><label>Payroll Month</label><select id="pmSaveMonth"></select></div>
+                            <div class="field-group"><label>Year</label><input id="pmSaveYear" type="number" min="2000" max="2100"></div>
+                        </div>
+                        <div class="button-row"><button id="pmSaveData" class="btn btn-primary">💾 Save Payroll Data</button></div>
+                        <p style="color:#999; font-size:0.9rem;">(Saved records can be viewed, filtered &amp; deleted in the "Payroll Records" tab)</p>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>4. Calculated Payroll (Current Run)</h2></div>
+                        <div class="table-container"><table id="pmResultsTable"><thead></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="payroll-records">
+                    <div class="panel">
+                        <div class="panel-header"><h2>Filter Payroll Records</h2></div>
+                        <div class="filter-bar">
+                            <div class="field-group"><label>Employee Name</label><select id="prFilterName"><option value="">All</option></select></div>
+                            <div class="field-group"><label>Month</label><select id="prFilterMonth"><option value="">All</option></select></div>
+                            <div class="field-group"><label>Year</label><select id="prFilterYear"><option value="">All</option></select></div>
+                            <div class="field-group"><label>Office</label><select id="prFilterOffice"><option value="">All</option></select></div>
+                            <div class="filter-actions">
+                                <button id="prApplyFilter" class="btn btn-primary">🔍 Apply Filter</button>
+                                <button id="prClearFilter" class="btn btn-secondary">✖ Clear Filter</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>Saved Payroll Records</h2></div>
+                        <div class="table-container"><table id="prRecordsTable"><thead></thead><tbody></tbody></table></div>
+                        <div class="button-row">
+                            <button id="prDeleteMonth" class="btn btn-danger">🗑 Delete Entire Month (from filter)</button>
+                            <button id="prExportFiltered" class="btn btn-secondary">⬇ Export Filtered to Excel</button>
+                            <span id="prStatus" style="align-self:center; color:#cbd5e1;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="bank-generate">
+                    <div class="panel">
+                        <div class="panel-header"><h2>Batch Details</h2></div>
+                        <div class="form-grid two-column">
+                            <div class="field-group">
+                                <label>Company</label>
+                                <select id="bgCompany"><option>EE-Academy</option><option>EE-Placement</option></select>
+                            </div>
+                            <div class="field-group"><label>Date (DD/MM/YYYY)</label><input id="bgDate" type="text" placeholder="DD/MM/YYYY"></div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>Load Net Pay from Saved Payroll</h2></div>
+                        <p style="color:#999; font-size:0.9rem; margin-top:-10px;">Each "Save Payroll Data" click creates its own numbered batch. Pick the Month, Year and the specific Batch No to pull that batch's employees and their saved take-home (Net Pay) into the list below, matched against Bank Employees by name for the Company selected above.</p>
+                        <div class="form-grid" style="grid-template-columns: repeat(3, minmax(0,1fr));">
+                            <div class="field-group"><label>Payroll Month</label><select id="bgLoadMonth"></select></div>
+                            <div class="field-group"><label>Year</label><input id="bgLoadYear" type="number" min="2000" max="2100"></div>
+                            <div class="field-group"><label>Batch No</label><select id="bgLoadBatch"><option value="">Select Batch...</option></select></div>
+                        </div>
+                        <div class="button-row"><button id="bgLoadFromPayroll" class="btn btn-secondary">⬇ Load Net Pay Into Batch</button></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>Add Employee Salary Entry</h2></div>
+                        <div class="form-grid" style="grid-template-columns: repeat(6, minmax(0,1fr));">
+                            <div class="field-group"><label>Employee</label><select id="bgEmployee"></select></div>
+                            <div class="field-group"><label>IFSC</label><input id="bgIfsc" type="text" readonly></div>
+                            <div class="field-group"><label>Account</label><input id="bgAccount" type="text" readonly></div>
+                            <div class="field-group"><label>Mode</label><input id="bgMode" type="text" readonly></div>
+                            <div class="field-group"><label>Amount</label><input id="bgAmount" type="number" min="0" step="0.01"></div>
+                            <div class="field-group"><label>Remarks</label><input id="bgRemarks" list="bgRemarksList" type="text" value="Incentive"><datalist id="bgRemarksList"></datalist></div>
+                        </div>
+                        <div class="button-row"><button id="bgAddEntry" class="btn btn-primary">OK (Add to List)</button></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>Entries in This Batch</h2></div>
+                        <div class="table-container"><table id="bgEntriesTable"><thead><tr><th>Employee</th><th>IFSC</th><th>Account</th><th>Mode</th><th>Amount</th><th>Remarks</th><th></th></tr></thead><tbody></tbody></table></div>
+                        <div class="button-row">
+                            <button id="bgClearEntries" class="btn btn-danger">Clear All</button>
+                            <span id="bgTotal" style="align-self:center; font-weight:700;">Total: 0 | Amount: 0.00</span>
+                            <span style="align-self:center; color:#888;">(NEFT entries are written first, IFT entries last)</span>
+                            <button id="bgSubmitBatch" class="btn btn-primary" style="margin-left:auto;">Submit &amp; Generate Excel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="bank-employees">
+                    <div class="panel">
+                        <div class="panel-header"><h2>Bulk Upload Employee Bank Details</h2></div>
+                        <div class="form-grid two-column">
+                            <div class="field-group"><label>Assign to Company</label><select id="beUploadCompany"><option>EE-Academy</option><option>EE-Placement</option></select></div>
+                            <div class="field-group"><label>Excel File</label><input id="beUploadFile" type="file" accept=".xlsx,.xlsm"></div>
+                        </div>
+                        <div class="button-row"><button id="beUploadBtn" class="btn btn-secondary">Upload</button></div>
+                        <p style="color:#666; font-size:0.9rem;">(Same format as the bank template — Name in col K, IFSC in col M, Account No. in col N)</p>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2>Add a New Employee</h2></div>
+                        <div class="form-grid" style="grid-template-columns: repeat(4, minmax(0,1fr));">
+                            <div class="field-group"><label>Name</label><input id="beName" type="text"></div>
+                            <div class="field-group"><label>IFSC</label><input id="beIfsc" type="text"></div>
+                            <div class="field-group"><label>Account No.</label><input id="beAccount" type="text"></div>
+                            <div class="field-group"><label>Company</label><select id="beCompany"><option>EE-Academy</option><option>EE-Placement</option></select></div>
+                        </div>
+                        <div class="button-row"><button id="beSaveBtn" class="btn btn-primary">Save Employee</button></div>
+                    </div>
+
+                    <div class="panel panel-list">
+                        <div class="panel-header"><h2>Employees on File</h2></div>
+                        <div class="filter-bar">
+                            <div class="field-group"><label>Filter by Company</label><select id="beFilterCompany"><option value="">All</option><option>EE-Academy</option><option>EE-Placement</option></select></div>
+                        </div>
+                        <div class="table-container"><table id="beTable"><thead><tr><th>Name</th><th>IFSC</th><th>Account No.</th><th>Company</th><th></th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="bank-history">
+                    <div class="panel panel-list">
+                        <div class="panel-header"><h2>Batch History</h2></div>
+                        <div class="table-container"><table id="bhTable"><thead><tr><th>Batch ID</th><th>Date</th><th>Company</th><th>Saved At</th><th>File Name</th><th>Entries</th><th>Total Amount</th><th></th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="statutory">
+                    <div class="panel-grid">
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Statutory Settings</h2></div>
+                            <div class="table-container">
+                                <table id="statutoryTable">
+                                    <thead><tr><th>Employee</th><th>PF</th><th>ESIC</th><th>PT</th><th>LWF</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings" class="tab-page">
+                <div class="sub-page active" id="departments">
+                    <div class="panel-grid">
+                        <div class="panel">
+                            <div class="panel-header"><h2>Departments</h2></div>
+                            <div class="form-grid two-column">
+                                <div class="field-group"><label>Name</label><input id="dept_name" type="text"></div>
+                                <div class="field-group field-full"><label>Description</label><textarea id="dept_description" rows="3"></textarea></div>
+                            </div>
+                            <div class="button-row"><button id="saveDepartment" class="btn btn-primary">Add Department</button></div>
+                        </div>
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Department List</h2></div>
+                            <div class="table-container"><table id="departmentTable"><thead><tr><th>Name</th><th>Description</th><th>Delete</th></tr></thead><tbody></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="designations">
+                    <div class="panel-grid">
+                        <div class="panel">
+                            <div class="panel-header"><h2>Designations</h2></div>
+                            <div class="form-grid two-column">
+                                <div class="field-group"><label>Title</label><input id="designation_title" type="text"></div>
+                                <div class="field-group"><label>Department</label><select id="designation_department"></select></div>
+                            </div>
+                            <div class="button-row"><button id="saveDesignation" class="btn btn-primary">Add Designation</button></div>
+                        </div>
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Designation List</h2></div>
+                            <div class="table-container"><table id="designationTable"><thead><tr><th>Title</th><th>Department</th><th>Delete</th></tr></thead><tbody></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-page" id="offices">
+                    <div class="panel-grid">
+                        <div class="panel">
+                            <div class="panel-header"><h2>Offices</h2></div>
+                            <div class="form-grid two-column">
+                                <div class="field-group"><label>Name</label><input id="office_name" type="text"></div>
+                                <div class="field-group"><label>Location</label><input id="office_location" type="text"></div>
+                            </div>
+                            <div class="button-row"><button id="saveOffice" class="btn btn-primary">Add Office</button></div>
+                        </div>
+                        <div class="panel panel-list">
+                            <div class="panel-header"><h2>Office List</h2></div>
+                            <div class="table-container"><table id="officeTable"><thead><tr><th>Name</th><th>Location</th><th>Delete</th></tr></thead><tbody></tbody></table></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="letter-generator" class="tab-page">
+                <div class="panel">
+                    <div class="panel-header"><h2>Offer Letter Generator</h2></div>
+                    <div class="form-grid letter-form">
+                        <div class="field-group"><label>Offer Date</label><input id="offer_date" type="date"></div>
+                        <div class="field-group"><label>Prefix</label><select id="prefix"><option>Mr.</option><option>Ms.</option><option>Mrs.</option></select></div>
+                        <div class="field-group"><label>Name</label><input id="candidate_name" type="text"></div>
+                        <div class="field-group"><label>Position</label><input id="position" type="text"></div>
+                        <div class="field-group"><label>Joining Date</label><input id="joining_date" type="date"></div>
+                        <div class="field-group"><label>Location</label><input id="location" type="text"></div>
+                        <div class="field-group"><label>Department</label><input id="department" type="text"></div>
+                        <div class="field-group"><label>Monthly CTC</label><input id="monthly_ctc" type="number" min="0"></div>
+                        <div class="field-group"><label>Monthly CTC (Words)</label><input id="monthly_word" type="text" readonly></div>
+                        <div class="field-group"><label>Annual CTC</label><input id="annual_ctc" type="text" readonly></div>
+                        <div class="field-group"><label>Annual CTC (Words)</label><input id="annual_word" type="text" readonly></div>
+                    </div>
+                    <div class="button-row"><button id="generateOffer" class="btn btn-primary">Generate Offer Letter</button></div>
+                </div>
+            </section>
+        </div>
+
+        <div id="beEditModal" class="attendance-edit-popup hidden">
+            <div class="attendance-edit-inner">
+                <div class="attendance-edit-header">
+                    <h3>Edit Bank Employee</h3>
+                    <button id="beEditClose" class="btn btn-tertiary" style="min-width:auto; padding:6px 12px;">✕</button>
+                </div>
+                <input type="hidden" id="beEditId">
+                <div class="form-grid" style="margin-top:14px;">
+                    <div class="field-group field-full"><label>Name</label><input id="beEditName" type="text"></div>
+                    <div class="field-group"><label>IFSC</label><input id="beEditIfsc" type="text"></div>
+                    <div class="field-group"><label>Account No.</label><input id="beEditAccount" type="text"></div>
+                    <div class="field-group field-full"><label>Company</label><select id="beEditCompany"><option>EE-Academy</option><option>EE-Placement</option></select></div>
+                </div>
+                <div class="button-row">
+                    <button id="beEditSave" class="btn btn-primary">Save</button>
+                    <button id="beEditCancel" class="btn btn-tertiary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

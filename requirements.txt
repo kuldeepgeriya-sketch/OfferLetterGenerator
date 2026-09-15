@@ -1,0 +1,8 @@
+Flask
+gunicorn
+python-docx
+num2words
+openpyxl
+google-auth
+google-auth-oauthlib
+google-api-python-client
