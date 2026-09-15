@@ -215,16 +215,6 @@ def init_db():
     )
     ensure_column(cursor, "attendance", "remarks", "TEXT")
 
-    ensure_column(cursor, "leave_balances", "special_leave", "REAL DEFAULT 0")
-    # Migrate data from old casual_leave column if it exists (for backward compat)
-    try:
-        cursor.execute("PRAGMA table_info(leave_balances)")
-        cols = [row["name"] for row in cursor.fetchall()]
-        if "casual_leave" in cols:
-            cursor.execute("UPDATE leave_balances SET special_leave = COALESCE(special_leave, 0) + COALESCE(casual_leave, 0)")
-    except Exception:
-        pass
-
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS leave_balances ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -236,6 +226,16 @@ def init_db():
         "FOREIGN KEY (employee_id) REFERENCES employees (id)"
         ")"
     )
+
+    ensure_column(cursor, "leave_balances", "special_leave", "REAL DEFAULT 0")
+    # Migrate data from old casual_leave column if it exists (for backward compat)
+    try:
+        cursor.execute("PRAGMA table_info(leave_balances)")
+        cols = [row["name"] for row in cursor.fetchall()]
+        if "casual_leave" in cols:
+            cursor.execute("UPDATE leave_balances SET special_leave = COALESCE(special_leave, 0) + COALESCE(casual_leave, 0)")
+    except Exception:
+        pass
 
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS leave_requests ("
